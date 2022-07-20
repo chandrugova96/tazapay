@@ -11,35 +11,35 @@ const InvoiceSchema = new mongoose.Schema({
     },
     addressLine1: {
         type: String,
-        required: true,
+        required: false,
     },
     addressLine2: {
         type: String,
-        required: true,
+        required: false,
     },
     country: {
         type: String,
-        required: true,
+        required: false,
     },
     invoiceAmount: {
         type: Number,
-        required: true,
+        required: false,
     },
     invoiceCurrency: {
         type: String,
-        required: true,
+        required: false,
     },
     instrumentId: {
         type: String,
-        required: true,
+        required: false,
     },
     invoiceNumber: {
         type: String,
-        required: true,
+        required: false,
     },
     referenceNo: {
         type: String,
-        required: true,
+        required: false,
     },
     paymentStatus: {
         type: String,
@@ -49,6 +49,8 @@ const InvoiceSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+}, {
+    timestamps : true
 });
 
 const Invoice = mongoose.model("Invoice", InvoiceSchema);

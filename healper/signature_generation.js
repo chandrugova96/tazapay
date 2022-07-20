@@ -125,14 +125,14 @@ async function getBuyerDetails(email) {
   }
 }
 
-async function createBuyerDetails(email) {
+async function createBuyerDetails(email, name, country) {
   let buyerDetails = {};
   try {
     const body = {
-      email: email,
-      country: "India",
-      ind_bus_type: "Business",
-      business_name: "My Business"
+      "email": email,
+      "country": country,
+      "ind_bus_type": "Business",
+      "business_name": name
     };
     buyerDetails = await makeRequest("POST", "/v1/user", body);
     return buyerDetails;

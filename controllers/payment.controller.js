@@ -20,16 +20,22 @@ const templatesPath = path.resolve(__dirname, "..", "templates");
 const pdfFile = path.resolve(__dirname, "..", "templates/invoice.pdf");
 
 module.exports = {
+    
     createPayment: async (req, res, next) => {
         try {
-            let { companyEmail, invoiceAmount, invoiceCurrency } = req.body;
+            let { companyEmail, invoiceAmount, invoiceCurrency, companyName, country } = req.body;
+            let buyerId = '';
             let buyerDetails = await getBuyerDetails(companyEmail);
+            if(buyerDetails && buyerDetails.statusCode === 200 ){
+                buyerId = buyerDetails.body.data.id
+            };
             if(buyerDetails && buyerDetails.statusCode !== 200 ){
-                buyerDetails = await createBuyerDetails(companyEmail);
+                buyerDetails = await createBuyerDetails(companyEmail, companyName, country);
+                buyerId = buyerDetails.body.data.account_id;
             };
             const body = {
                 initiated_by: process.env.SELLER_ID,
-                buyer_id: buyerDetails.body.data.id,
+                buyer_id: buyerId,
                 seller_id: process.env.SELLER_ID,
                 txn_description: "Description",
                 is_milestone: true,
@@ -45,7 +51,6 @@ module.exports = {
                 };
                 let createPaymentResult = await makeRequest("POST", "/v1/session/payment", createPaymentPayload);
                 if(createPaymentResult && createPaymentResult.statusCode === 200){
-
                     let obj = req.body;
                     obj.txn_no = result.body.data.txn_no;
                     const html = template({
@@ -53,10 +58,8 @@ module.exports = {
                         amount : obj.invoiceAmount,
                         url : createPaymentResult.body.data.redirect_url
                     });
-        
                     pdf.create(html).toFile(path.resolve(templatesPath, `invoice.pdf`), async function (err, data1) {
                         if (err) {
-                            console.log(err);
                             res.send({ statusCode: 201, message: 'Create pdf failed.' });
                         } else {
                             let mailPayload = {
